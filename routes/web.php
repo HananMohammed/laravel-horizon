@@ -1,6 +1,14 @@
 <?php
 
+use App\Jobs\SomeJob;
+use App\Models\User;
+use Illuminate\Bus\Batch;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use \Illuminate\Support\Facades\Redis;
+use \App\Mail\OrderShipped;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +21,46 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get( '/', function () {
+//    Redis::set('name', 'Hanan');
+//    $name = Redis::get('name');
+//    dd($name);
+    return view( 'welcome' );
+} );
+
+Route::post( '/', function () {
+    Mail::to( 'hananmohammed2468@gmail.com' )->queue( new OrderShipped() );
+
+    return redirect()->back();
+} )->name( 'sendEmail' );
+
+Route::get( '/jobs/{jobs}/{user}', function ( $jobs, $user ) {
+    $user = User::find( $user );
+    for ( $i = 0 ; $i < $jobs ; $i++ )
+    {
+        SomeJob::dispatch( $user );
+    }
+} );
+
+
+Route::get( '/batches', function () {
+
+    $batch = Bus::batch([
+        new SomeJob(User::find(1)),
+        new SomeJob(User::find(2)),
+        new SomeJob(User::find(3)),
+        new SomeJob(User::find(4)),
+        new SomeJob(User::find(5)),
+    ])->then(function (Batch $batch) {
+        Log::info('All jobs completed successfully...');
+        // All jobs completed successfully...
+    })->catch(function (Batch $batch, Throwable $e) {
+        Log::info(' First batch job failure detected...');
+        // First batch job failure detected...
+    })->finally(function (Batch $batch) {
+        Log::info('The batch has finished executing..');
+        // The batch has finished executing...
+    })->name('Batch of Some Job')->dispatch();
+
+    return $batch->id;
+} );
