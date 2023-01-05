@@ -42,25 +42,25 @@ Route::get( '/jobs/{jobs}/{user}', function ( $jobs, $user ) {
     }
 } );
 
-
 Route::get( '/batches', function () {
 
-    $batch = Bus::batch([
-        new SomeJob(User::find(1)),
-        new SomeJob(User::find(2)),
-        new SomeJob(User::find(3)),
-        new SomeJob(User::find(4)),
-        new SomeJob(User::find(5)),
-    ])->then(function (Batch $batch) {
-        Log::info('All jobs completed successfully...');
+    $batch = Bus::batch( [
+        new SomeJob( User::find( 1 ) ),
+        new SomeJob( User::find( 2 ) ),
+        new SomeJob( User::find( 3 ) ),
+        new SomeJob( User::find( 4 ) ),
+        new SomeJob( User::find( 5 ) ),
+    ] )->then( function ( Batch $batch ) {
+        Log::info( 'All jobs completed successfully...' );
         // All jobs completed successfully...
-    })->catch(function (Batch $batch, Throwable $e) {
-        Log::info(' First batch job failure detected...');
+    } )->catch( function ( Batch $batch, Throwable $e ) {
+        Log::info( ' First batch job failure detected...' );
         // First batch job failure detected...
-    })->finally(function (Batch $batch) {
-        Log::info('The batch has finished executing..');
+    } )->finally( function ( Batch $batch ) {
+        Log::info( 'The batch has finished executing..' );
         // The batch has finished executing...
-    })->name('Batch of Some Job')->dispatch();
+    } )->name( 'Batch of Some Job' )->dispatch();
+
 
     return $batch->id;
 } );
