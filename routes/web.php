@@ -1,5 +1,7 @@
 <?php
 
+use App\Jobs\SomeJob;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use \Illuminate\Support\Facades\Redis;
@@ -16,14 +18,23 @@ use \App\Mail\OrderShipped;
 |
 */
 
-Route::get('/', function () {
+Route::get( '/', function () {
 //    Redis::set('name', 'Hanan');
 //    $name = Redis::get('name');
 //    dd($name);
-    return view('welcome');
-});
+    return view( 'welcome' );
+} );
 
-Route::post('/', function (){
-   Mail::to('hananmohammed2468@gmail.com')->queue(new OrderShipped());
-   return redirect()->back();
-})->name('sendEmail');
+Route::post( '/', function () {
+    Mail::to( 'hananmohammed2468@gmail.com' )->queue( new OrderShipped() );
+
+    return redirect()->back();
+} )->name( 'sendEmail' );
+
+Route::get( '/jobs/{jobs}/{user}', function ( $jobs, $user ) {
+    $user = User::find( $user );
+    for ( $i = 0 ; $i < $jobs ; $i++ )
+    {
+        SomeJob::dispatch( $user );
+    }
+} );
