@@ -24,5 +24,6 @@ Route::get('/', function () {
 });
 
 Route::post('/', function (){
-   Mail::to('hananmohammed2468@gmail.com')->send(new OrderShipped());
+   Mail::to('hananmohammed2468@gmail.com')->queue(new OrderShipped());
+   return redirect()->back();
 })->name('sendEmail');
