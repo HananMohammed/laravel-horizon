@@ -83,3 +83,18 @@ Route::get( '/videos/{id}/download', function ( $id ) {
 
     return $downloadCounts;
 } );
+
+Route::get( 'user/top', function () {
+    $topUsers = Redis::zrevrange( 'topUsers', 0, 2 );
+    $coll = User::hydrate( array_map('json_decode', $topUsers ) );
+
+    return $coll;
+} );
+
+
+Route::get( '/users/{user}', function ( User $user ) {
+    Redis::zincrby( 'topUsers', 1, $user );
+
+    return $user;
+} );
+
