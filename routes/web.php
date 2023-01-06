@@ -64,3 +64,9 @@ Route::get( '/batches', function () {
 
     return $batch->id;
 } );
+
+Route::get( '/visits', function () {
+    $visits = Redis::incr( 'visits' );
+
+    return $visits;
+} );
