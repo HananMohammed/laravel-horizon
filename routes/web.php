@@ -66,7 +66,20 @@ Route::get( '/batches', function () {
 } );
 
 Route::get( '/visits', function () {
-    $visits = Redis::incr( 'visits' );
+    // $visits = Redis::incr( 'visits' );
+    $visits = Redis::incrBy( 'visits', 5 );
 
     return $visits;
+} );
+
+Route::get( '/videos/{id}', function ( $id ) {
+    $downloads = Redis::get( "videos.{$id}.downloads" );
+
+    return view( 'welcome' )->withDownloads( $downloads );
+} );
+
+Route::get( '/videos/{id}/download', function ( $id ) {
+    $downloadCounts = Redis::incr( "videos.{$id}.downloads" );
+
+    return $downloadCounts;
 } );
