@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\SomeEvent;
 use App\Jobs\SomeJob;
 use App\Models\User;
 use Illuminate\Bus\Batch;
@@ -113,7 +114,7 @@ Route::get( '/hash', function ( User $user ) {
     Redis::hmset( 'user.1.states', $userStates );
     Cache::put( 'foo', 'bar', 10 );
 
-    return Cache::get( 'foo' );
+   // return Cache::get( 'foo' );
 
     return Redis::hgetall( 'user.1.states' );
 } );
@@ -154,3 +155,19 @@ Route::get( '/users', function () {
 
     return unserialize($value);
 }*/
+
+
+Route::get( '/dumps', function () {
+    $user1 = User::find(1)->toArray();
+    $user2 = User::find(2)->toArray();
+    dump($user1);
+    dump($user2);
+
+    return 'dump completed';
+} );
+
+Route::get( '/events', function () {
+    new SomeEvent(User::find(1));
+
+    return 'Events done';
+} );
