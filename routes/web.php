@@ -107,12 +107,50 @@ Route::get( '/hash', function ( User $user ) {
         'watchLater' => 100,
         'complesion' => 25,
     ];
-    $serializedUserStates = serialize($userStates);
-    $unSerializedUserStates = unserialize($serializedUserStates);
-    dd($serializedUserStates, $unSerializedUserStates);
+//    $serializedUserStates = serialize($userStates);
+//    $unSerializedUserStates = unserialize($serializedUserStates);
+//    dd($serializedUserStates, $unSerializedUserStates);
     Redis::hmset( 'user.1.states', $userStates );
-    Cache::put('foo', 'bar', 10);
+    Cache::put( 'foo', 'bar', 10 );
 
-    return Cache::get('foo');
+    return Cache::get( 'foo' );
+
     return Redis::hgetall( 'user.1.states' );
 } );
+
+
+//Caching With Redis
+
+/*Route::get( '/users', function () {
+
+    if ( $value = Redis::get( 'users.all' ) )
+    {
+        return $value;
+    }
+    $users = User::all();
+    //Redis::set( 'users.all', $users );
+    //set with expiration date
+    Redis::setex( 'users.all',60, $users );
+
+    return $users;
+} );*/
+
+//Refatcor
+
+Route::get( '/users', function () {
+    return Cache::remember( 'users.all', 60 * 60, function () {
+        return User::all();
+    } );
+} );
+
+/*function remember( $key, $minute, $callback )
+{
+
+    if ( $value = Redis::get( $key ) )
+    {
+        return unserialize($value);
+    }
+    Redis::setex( $key, $minute, $value = serialize($callback()) );
+
+    return unserialize($value);
+}*/
