@@ -4,6 +4,7 @@ use App\Jobs\SomeJob;
 use App\Models\User;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -86,7 +87,7 @@ Route::get( '/videos/{id}/download', function ( $id ) {
 
 Route::get( 'user/top', function () {
     $topUsers = Redis::zrevrange( 'topUsers', 0, 2 );
-    $coll = User::hydrate( array_map('json_decode', $topUsers ) );
+    $coll = User::hydrate( array_map( 'json_decode', $topUsers ) );
 
     return $coll;
 } );
@@ -98,3 +99,20 @@ Route::get( '/users/{user}', function ( User $user ) {
     return $user;
 } );
 
+///Hashes
+
+Route::get( '/hash', function ( User $user ) {
+    $userStates = [
+        'favourites' => 50,
+        'watchLater' => 100,
+        'complesion' => 25,
+    ];
+    $serializedUserStates = serialize($userStates);
+    $unSerializedUserStates = unserialize($serializedUserStates);
+    dd($serializedUserStates, $unSerializedUserStates);
+    Redis::hmset( 'user.1.states', $userStates );
+    Cache::put('foo', 'bar', 10);
+
+    return Cache::get('foo');
+    return Redis::hgetall( 'user.1.states' );
+} );
